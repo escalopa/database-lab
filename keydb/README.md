@@ -153,7 +153,7 @@ For every milestone:
 
 | Milestone | Status |
 | --- | --- |
-| 1. Orientation and mental model | Ready |
+| 1. Orientation and mental model | In progress |
 | 2. Keys, values, and data structures | Planned |
 | 3. Commands and client behavior | Planned |
 | 4. Atomicity, transactions, and concurrency | Planned |
@@ -167,3 +167,7 @@ For every milestone:
 | 12. Performance methodology and capstone | Planned |
 
 No KeyDB server, container, Go code, dependency, or Go module is included yet.
+
+## Current lesson
+
+Start with [Milestone 1: Orientation and mental model](concepts/01-orientation-and-mental-model.md), then complete its [exercises](exercises/01-orientation-and-mental-model.md).

@@ -13,7 +13,7 @@ Each note should answer:
 
 ## Planned notes
 
-1. System overview and Redis compatibility
+1. [System overview and Redis compatibility](01-orientation-and-mental-model.md)
 2. RESP, commands, and client lifecycle
 3. Data structures and complexity
 4. Expiration, eviction, and memory

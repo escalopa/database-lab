@@ -24,3 +24,7 @@ An exercise is complete when it contains:
 7. one follow-up question
 
 Exercises should link to the relevant concept note and experiment rather than duplicate their content.
+
+## Milestones
+
+- [Milestone 1: Orientation and mental model](01-orientation-and-mental-model.md)

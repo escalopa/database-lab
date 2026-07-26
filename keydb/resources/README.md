@@ -8,6 +8,8 @@ Course links last reviewed: 2026-07-27.
 
 - [KeyDB documentation](https://docs.keydb.dev/docs/)
 - [Recommended reading](https://docs.keydb.dev/docs/#recommended-reading)
+- [About KeyDB](https://docs.keydb.dev/docs/about/)
+- [Redis compatibility](https://docs.keydb.dev/docs/compatibility/)
 - [KeyDB source code](https://github.com/Snapchat/KeyDB)
 - [Command reference](https://docs.keydb.dev/docs/commands/)
 - [Configuration reference](https://docs.keydb.dev/docs/config-file/)
