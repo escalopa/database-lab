@@ -51,3 +51,7 @@ Within a database's `experiments` directory, each experiment will be a separate 
 ```
 
 The repository is intentionally minimal at the beginning. Database-specific content, application code, dependencies, modules, containers, and configuration will be introduced only through focused study.
+
+## Databases
+
+- [KeyDB](keydb/README.md) — course planned; experiments not started
