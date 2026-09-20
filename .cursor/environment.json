@@ -1,0 +1,7 @@
+{
+  "name": "Database Lab (KeyDB)",
+  "user": "ubuntu",
+  "install": "bash .cursor/install.sh",
+  "start": "bash .cursor/start.sh",
+  "ports": [6379]
+}
