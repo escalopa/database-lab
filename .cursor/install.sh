@@ -3,38 +3,52 @@
 #
 # The repository is a study workspace: Go is the language for isolated
 # experiment modules, and KeyDB (Redis-compatible) is the database under study.
-# This script ensures both toolchains are available and prepares any experiment
-# Go modules that already exist. It is safe to run repeatedly.
+# KeyDB runs in Docker via the official image, which keeps setup simple and
+# avoids OS-package quirks. This script installs the Docker toolchain, pre-pulls
+# the KeyDB image, and prepares any experiment Go modules. Safe to run repeatedly.
 set -euo pipefail
+
+CURSOR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=/dev/null
+source "$CURSOR_DIR/lib.sh"
 
 log() { printf '[install] %s\n' "$*"; }
 
 log "Go toolchain: $(go version)"
 
-# --- Ensure the KeyDB server + CLI are installed --------------------------------
-# KeyDB has no native Ubuntu 24.04 (noble) package; the jammy packages are the
-# vendor-recommended choice and are compatible. We install "keydb-tools" (the
-# binaries: keydb-server, keydb-cli, keydb-benchmark) rather than the
-# "keydb-server" service package, whose postinstall assumes systemd and fails in
-# a container. When booting from a prebuilt snapshot KeyDB is already present, so
-# this whole block is skipped.
-if command -v keydb-server >/dev/null 2>&1; then
-  log "KeyDB already installed: $(keydb-server --version)"
+# --- Ensure the Docker toolchain is installed -----------------------------------
+# When booting from a prebuilt snapshot these are already present and this block
+# is skipped.
+if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+  log "Docker already installed: $(docker --version)"
 else
-  log "Installing KeyDB (jammy packages) ..."
-  sudo wget -qO /etc/apt/trusted.gpg.d/keydb.gpg https://download.keydb.dev/open-source-dist/keyring.gpg
-  echo "deb [signed-by=/etc/apt/trusted.gpg.d/keydb.gpg] https://download.keydb.dev/open-source-dist jammy main" \
-    | sudo tee /etc/apt/sources.list.d/keydb.list >/dev/null
+  log "Installing Docker (docker.io, compose v2, fuse-overlayfs) ..."
   sudo apt-get update -o Acquire::Retries=3
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y keydb-tools
-  log "Installed KeyDB: $(keydb-server --version)"
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    docker.io docker-compose-v2 fuse-overlayfs uidmap
+  # fuse3 ships an interactive conffile prompt; keep the packaged default.
+  sudo DEBIAN_FRONTEND=noninteractive dpkg --configure -a --force-confdef --force-confold || true
+  log "Installed Docker: $(docker --version)"
 fi
+
+# Let the ubuntu user run docker without sudo in future interactive sessions.
+sudo groupadd -f docker
+sudo usermod -aG docker "${USER:-ubuntu}" || true
+
+# Configure the daemon's storage driver for the nested-container environment.
+sudo mkdir -p /etc/docker
+if [ ! -f /etc/docker/daemon.json ]; then
+  echo '{ "storage-driver": "fuse-overlayfs" }' | sudo tee /etc/docker/daemon.json >/dev/null
+fi
+
+# --- Pre-pull the KeyDB image so first boot is fast -----------------------------
+ensure_dockerd
+log "Pulling KeyDB image ..."
+sudo docker compose -f "$COMPOSE_FILE" pull
 
 # --- Best-effort prep of any existing experiment modules ------------------------
 # Each experiment lives in its own directory with its own go.mod. None exist yet;
-# when they do, warm their module caches. Failures here (e.g. offline) must not
-# fail environment setup.
-shopt -s nullglob
+# when they do, warm their module caches. Failures here must not fail setup.
 found_module=0
 while IFS= read -r -d '' modfile; do
   found_module=1
