@@ -1,0 +1,22 @@
+# KeyDB service for the Database Lab environment.
+# Started by .cursor/start.sh via `docker compose`. Experiments connect over
+# RESP at 127.0.0.1:6379.
+name: database-lab
+
+services:
+  keydb:
+    image: eqalpha/keydb:x86_64_v6.3.4
+    container_name: keydb
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - keydb-data:/data
+    healthcheck:
+      test: ["CMD", "keydb-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  keydb-data:
